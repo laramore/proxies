@@ -26,7 +26,7 @@ class MultiProxy extends BaseProxy
      */
     public function __construct(string $name)
     {
-        parent::__construct($name, $name, []);
+        parent::__construct($name, $name, false);
 
         $this->setCallback(function (string $identifierName, ...$args) {
             return $this->getProxy($identifierName)->__invoke(...$args);
@@ -51,7 +51,7 @@ class MultiProxy extends BaseProxy
      */
     public function addProxy(Proxy $proxy)
     {
-        $this->proxies[$proxy->getMultiProxyIdentifier()] = $proxy;
+        $this->proxies[$proxy->getIdentifier()] = $proxy;
 
         return $this;
     }
@@ -59,23 +59,23 @@ class MultiProxy extends BaseProxy
     /**
      * Indicate if a proxy exists by a field name.
      *
-     * @param string $fieldname
+     * @param string $identifier
      * @return boolean
      */
-    public function hasProxy(string $fieldname): bool
+    public function hasProxy(string $identifier): bool
     {
-        return isset($this->proxies[$fieldname]);
+        return isset($this->proxies[$identifier]);
     }
 
     /**
      * Return a proxy by a field name.
      *
-     * @param string $fieldname
+     * @param string $identifier
      * @return Proxy
      */
-    public function getProxy(string $fieldname): Proxy
+    public function getProxy(string $identifier): Proxy
     {
-        return $this->proxies[$fieldname];
+        return $this->proxies[$identifier];
     }
 
     /**

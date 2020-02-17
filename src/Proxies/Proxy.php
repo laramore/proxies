@@ -10,8 +10,11 @@
 
 namespace Laramore\Proxies;
 
-use Illuminate\Support\Str;
+use Illuminate\Support\{
+    Str, Arr
+};
 use Illuminate\Container\Container;
+use Laramore\Contracts\Proxied;
 
 class Proxy extends BaseProxy
 {
@@ -34,11 +37,11 @@ class Proxy extends BaseProxy
      *
      * @param string        $identifier
      * @param string        $methodname
-     * @param array<string> $injections
+     * @param bool          $static
      * @param string        $nameTemplate
      * @param string        $multiNameTemplate
      */
-    public function __construct(string $identifier, string $methodname, array $injections=[],
+    public function __construct(string $identifier, string $methodname, bool $static=false,
                                 string $nameTemplate=null, string $multiNameTemplate=null)
     {
         $config = Container::getInstance()->config;
@@ -47,7 +50,7 @@ class Proxy extends BaseProxy
             compact($identifier, $methodname)
         );
 
-        parent::__construct($name, $methodname, $injections);
+        parent::__construct($name, $methodname, $static);
 
         $this->setMultiName(
             Str::replaceInTemplate(
@@ -55,6 +58,8 @@ class Proxy extends BaseProxy
                 compact($name, $identifier, $methodname
             ))
         );
+
+        $this->setIdentifier($identifier);
     }
 
     /**
@@ -80,5 +85,45 @@ class Proxy extends BaseProxy
     public function getMultiName(): string
     {
         return $this->multiName;
+    }
+
+    /**
+     * Define the proxy identifier.
+     *
+     * @param string $multiName
+     * @return self
+     */
+    public function setIdentifier(string $identifier)
+    {
+        $this->needsToBeUnlocked();
+
+        $this->identifier = $identifier;
+
+        return $this;
+    }
+
+    /**
+     * Return the proxy identifier.
+     *
+     * @return string
+     */
+    public function getIdentifier(): string
+    {
+        return $this->identifier;
+    }
+
+    /**
+     * Call the proxy.
+     *
+     * @param  mixed ...$args
+     * @return mixed
+     */
+    public function __invoke(...$args)
+    {
+        if (!$this->isStatic && !(Arr::get($args, 0) instanceof Proxied)) {
+            throw new \BadMethodCallException("The proxy `{$this->getName()}` cannot be called statically.");
+        }
+
+        return \call_user_func($this->getCallback(), ...$args);
     }
 }
