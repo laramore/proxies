@@ -31,9 +31,9 @@ abstract class BaseProxy extends BaseObserver
     /**
      * An observer needs at least a name and a Closure.
      *
-     * @param string        $name
-     * @param string        $methodName
-     * @param bool          $static
+     * @param string  $name
+     * @param string  $methodName
+     * @param boolean $static
      */
     public function __construct(string $name, string $methodName, bool $static=false)
     {
@@ -69,9 +69,9 @@ abstract class BaseProxy extends BaseObserver
     }
 
     /**
-     *  Set this proxy as static or not.
+     * Set this proxy as static or not.
      *
-     * @param bool $methodName
+     * @param boolean $static
      * @return self
      */
     public function setStatic(bool $static)
@@ -86,7 +86,7 @@ abstract class BaseProxy extends BaseObserver
     /**
      * Return if this proxy is static or not.
      *
-     * @return bool
+     * @return boolean
      */
     public function isStatic(): bool
     {

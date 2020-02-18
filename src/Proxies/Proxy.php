@@ -35,11 +35,11 @@ class Proxy extends BaseProxy
     /**
      * An observer needs at least a name and a Closure.
      *
-     * @param string        $identifier
-     * @param string        $methodname
-     * @param bool          $static
-     * @param string        $nameTemplate
-     * @param string        $multiNameTemplate
+     * @param string  $identifier
+     * @param string  $methodname
+     * @param boolean $static
+     * @param string  $nameTemplate
+     * @param string  $multiNameTemplate
      */
     public function __construct(string $identifier, string $methodname, bool $static=false,
                                 string $nameTemplate=null, string $multiNameTemplate=null)
@@ -90,7 +90,7 @@ class Proxy extends BaseProxy
     /**
      * Define the proxy identifier.
      *
-     * @param string $multiName
+     * @param string $identifier
      * @return self
      */
     public function setIdentifier(string $identifier)
@@ -113,6 +113,19 @@ class Proxy extends BaseProxy
     }
 
     /**
+     * Check if arguments for the invocation are valid.
+     *
+     * @param array $args
+     * @return void
+     */
+    protected function checkArguments(array $args)
+    {
+        if (!$this->isStatic && !(Arr::get($args, 0) instanceof Proxied)) {
+            throw new \BadMethodCallException("The proxy `{$this->getName()}` cannot be called statically.");
+        }
+    }
+
+    /**
      * Call the proxy.
      *
      * @param  mixed ...$args
@@ -120,9 +133,7 @@ class Proxy extends BaseProxy
      */
     public function __invoke(...$args)
     {
-        if (!$this->isStatic && !(Arr::get($args, 0) instanceof Proxied)) {
-            throw new \BadMethodCallException("The proxy `{$this->getName()}` cannot be called statically.");
-        }
+        $this->checkArguments($args);
 
         return \call_user_func($this->getCallback(), ...$args);
     }
