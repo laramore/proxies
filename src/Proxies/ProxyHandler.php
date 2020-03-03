@@ -10,11 +10,13 @@
 
 namespace Laramore\Proxies;
 
+use Illuminate\Container\Container;
+use Laramore\Contracts\Configured;
 use Laramore\Observers\{
     BaseHandler, BaseObserver
 };
 
-class ProxyHandler extends BaseHandler
+class ProxyHandler extends BaseHandler implements Configured
 {
     /**
      * The observable class.
@@ -24,24 +26,49 @@ class ProxyHandler extends BaseHandler
     protected $observerClass = Proxy::class;
 
     /**
+     * Return the configuration path for this field.
+     *
+     * @param string $path
+     * @return mixed
+     */
+    public function getConfigPath(string $path=null)
+    {
+        return 'proxy'.(\is_null($path) ? '' : ".$path");
+    }
+
+    /**
+     * Return the configuration for this field.
+     *
+     * @param string $path
+     * @param mixed  $default
+     * @return mixed
+     */
+    public function getConfig(string $path=null, $default=null)
+    {
+        return Container::getInstance()->config->get($this->getConfigPath($path), $default);
+    }
+
+    /**
      * Add an observer to a list of observers.
      *
      * @param BaseObserver     $proxy
-     * @param array<BaseProxy> $proxys
+     * @param array<BaseProxy> $proxies
      * @return self
      */
-    protected function push(BaseObserver $proxy, array &$proxys)
+    protected function push(BaseObserver $proxy, array &$proxies)
     {
-        \array_push($proxys, $proxy);
+        parent::push($proxy, $proxies);
 
-        if ($this->has($name = $proxy->getMultiProxyName())) {
+        $class = $this->getConfig('multi_class');
+
+        if ($this->has($name = $proxy->getMultiName())) {
             $multiProxy = $this->get($name);
 
-            if (!($multiProxy instanceof MultiProxy)) {
+            if (!($multiProxy instanceof $class)) {
                 throw new \LogicException("Conflict between proxies `$name`");
             }
         } else {
-            \array_push($proxys, $multiProxy = new MultiProxy($name));
+            parent::push($multiProxy = new $class($name), $proxies);
         }
 
         $multiProxy->addProxy($proxy);
