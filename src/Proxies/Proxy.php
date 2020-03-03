@@ -36,30 +36,57 @@ class Proxy extends BaseProxy
      * An observer needs at least a name and a Closure.
      *
      * @param string  $identifier
-     * @param string  $methodname
+     * @param string  $methodName
      * @param boolean $static
      * @param string  $nameTemplate
      * @param string  $multiNameTemplate
      */
-    public function __construct(string $identifier, string $methodname, bool $static=false,
+    public function __construct(string $identifier, string $methodName, bool $static=false,
                                 string $nameTemplate=null, string $multiNameTemplate=null)
     {
         $config = Container::getInstance()->config;
-        $name = Str::replaceInTemplate(
-            $nameTemplate ?: $config->get('proxy.name_template'),
-            compact($identifier, $methodname)
-        );
-
-        parent::__construct($name, $methodname, $static);
-
-        $this->setMultiName(
-            Str::replaceInTemplate(
-                $multiNameTemplate ?: $config->get('proxy.multi_name_template'),
-                compact($name, $identifier, $methodname
-            ))
-        );
 
         $this->setIdentifier($identifier);
+        $this->setMethodName($methodName);
+
+        parent::__construct($this->parseName($nameTemplate ?: $config->get('proxy.templates.name')), $methodName, $static);
+
+        $this->setMultiName($this->parseMultiName($multiNameTemplate ?: $config->get('proxy.templates.multi_name')));
+    }
+
+    /**
+     * Parse the name with proxy data.
+     *
+     * @param string $nameTemplate
+     * @return string
+     */
+    protected function parseName(string $nameTemplate): string
+    {
+        return Str::replaceInTemplate(
+            $nameTemplate,
+            [
+                'identifier' => $this->getIdentifier(),
+                'methodname' => $this->getMethodName(),
+            ],
+        );
+    }
+
+    /**
+     * Parse the multi name with proxy data.
+     *
+     * @param string $multiNameTemplate
+     * @return string
+     */
+    protected function parseMultiName(string $multiNameTemplate): string
+    {
+        return Str::replaceInTemplate(
+            $multiNameTemplate,
+            [
+                'name' => $this->getName(),
+                'identifier' => $this->getIdentifier(),
+                'methodname' => $this->getMethodName(),
+            ],
+        );
     }
 
     /**
@@ -120,7 +147,7 @@ class Proxy extends BaseProxy
      */
     protected function checkArguments(array $args)
     {
-        if (!$this->isStatic && !(Arr::get($args, 0) instanceof Proxied)) {
+        if (!$this->isStatic() && !(Arr::get($args, 0) instanceof Proxied)) {
             throw new \BadMethodCallException("The proxy `{$this->getName()}` cannot be called statically.");
         }
     }
