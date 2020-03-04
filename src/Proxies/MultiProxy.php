@@ -29,6 +29,10 @@ class MultiProxy extends BaseProxy
         parent::__construct($name, $name, false);
 
         $this->setCallback(function (string $identifierName, ...$args) {
+            if (!$this->hasProxy($identifierName)) {
+                throw new \BadMethodCallException("The method `{$this->getName()}` does not exist for `$identifierName`");
+            }
+
             return $this->getProxy($identifierName)->__invoke(...$args);
         });
     }
