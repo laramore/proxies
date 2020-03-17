@@ -68,7 +68,7 @@ class ProxyHandler extends BaseHandler implements Configured
                 throw new \LogicException("Conflict between proxies `$name`");
             }
         } else {
-            parent::push($multiProxy = new $class($name), $proxies);
+            parent::push($multiProxy = new $class($name, $proxy->isStatic()), $proxies);
         }
 
         $multiProxy->addProxy($proxy);

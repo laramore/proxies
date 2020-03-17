@@ -22,11 +22,12 @@ class MultiProxy extends BaseProxy
     /**
      * An observer needs at least a name and a Closure.
      *
-     * @param string $name
+     * @param string  $name
+     * @param boolean $static
      */
-    public function __construct(string $name)
+    public function __construct(string $name, bool $static=false)
     {
-        parent::__construct($name, $name, false);
+        parent::__construct($name, $name, $static);
 
         $this->setCallback(function (string $identifierName, ...$args) {
             if (!$this->hasProxy($identifierName)) {
@@ -55,6 +56,12 @@ class MultiProxy extends BaseProxy
      */
     public function addProxy(Proxy $proxy)
     {
+        if ($this->isStatic() && !$proxy->isStatic()) {
+            throw new \LogicException('Multi proxy is statically callable, not the added proxy');
+        } else if ($this->isStatic() && !$proxy->isStatic()) {
+            throw new \LogicException('Multi proxy is not statically callable, but the added proxy is');
+        }
+
         $this->proxies[$proxy->getIdentifier()] = $proxy;
 
         return $this;
