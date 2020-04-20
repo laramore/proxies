@@ -16,8 +16,8 @@ return [
     'multi_class' => \Laramore\Proxies\MultiProxy::class,
     
     'templates' => [
-        'name' => '${methodname}^{identifier}',
-        'multi_name' => '${methodname}',
+        'name' => '-{methodname}^{identifier}',
+        'multi_name' => '-{methodname}',
     ],
 
     'configurations' => [],

@@ -60,15 +60,18 @@ class ProxyHandler extends BaseHandler implements Configured
         parent::push($proxy, $proxies);
 
         $class = $this->getConfig('multi_class');
+        $name = $proxy->getMultiName();
 
-        if ($this->has($name = $proxy->getMultiName())) {
-            $multiProxy = $this->get($name);
+        if ($name) {
+            if ($this->has($name)) {
+                $multiProxy = $this->get($name);
 
-            if (!($multiProxy instanceof $class)) {
-                throw new \LogicException("Conflict between proxies `$name`");
+                if (!($multiProxy instanceof $class)) {
+                    throw new \LogicException("Conflict between proxies `$name`");
+                }
+            } else {
+                parent::push($multiProxy = new $class($name, $proxy->isStatic()), $proxies);
             }
-        } else {
-            parent::push($multiProxy = new $class($name, $proxy->isStatic()), $proxies);
         }
 
         $multiProxy->addProxy($proxy);
