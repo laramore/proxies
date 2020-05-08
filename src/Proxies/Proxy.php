@@ -1,6 +1,6 @@
 <?php
 /**
- * Proxy definition.
+ * Create an Observer to add a \Closure on a specific model event.
  *
  * @author Samy Nastuzzi <samy@nastuzzi.fr>
  *
@@ -10,133 +10,89 @@
 
 namespace Laramore\Proxies;
 
-use Illuminate\Support\{
-    Str, Arr
-};
-use Illuminate\Container\Container;
+use Illuminate\Support\Arr;
 use Laramore\Contracts\Proxied;
+use Laramore\Observers\BaseObserver;
 
-class Proxy extends BaseProxy
+class Proxy extends BaseObserver
 {
     /**
-     * Identifier value.
+     * The method to call.
      *
      * @var string
      */
-    protected $identifier;
+    protected $methodName;
 
     /**
-     * Prefered name for the multi proxy name.
+     * Static proxy
      *
-     * @var string
+     * @var bool
      */
-    protected $multiName;
+    protected $static;
 
     /**
      * An observer needs at least a name and a Closure.
      *
-     * @param string  $identifier
+     * @param string  $name
      * @param string  $methodName
      * @param boolean $static
-     * @param string  $nameTemplate
-     * @param string  $multiNameTemplate
      */
-    public function __construct(string $identifier, string $methodName, bool $static=false,
-                                string $nameTemplate=null, string $multiNameTemplate=null)
+    public function __construct(string $name, string $methodName, bool $static=false)
     {
-        $config = Container::getInstance()->config;
-
-        $this->setIdentifier($identifier);
         $this->setMethodName($methodName);
+        $this->setStatic($static);
 
-        parent::__construct($this->parseName($nameTemplate ?: $config->get('proxy.templates.name')), $methodName, $static);
-
-        $this->setMultiName($this->parseMultiName($multiNameTemplate ?: $config->get('proxy.templates.multi_name')));
+        parent::__construct($name, null, self::MEDIUM_PRIORITY, []);
     }
 
     /**
-     * Parse the name with proxy data.
+     * Define the method name that is used for this proxy.
      *
-     * @param string $nameTemplate
-     * @return string
-     */
-    protected function parseName(string $nameTemplate): string
-    {
-        return Str::replaceInTemplate(
-            $nameTemplate,
-            [
-                'identifier' => $this->getIdentifier(),
-                'methodname' => $this->getMethodName(),
-            ],
-        );
-    }
-
-    /**
-     * Parse the multi name with proxy data.
-     *
-     * @param string $multiNameTemplate
-     * @return string
-     */
-    protected function parseMultiName(string $multiNameTemplate): string
-    {
-        return Str::replaceInTemplate(
-            $multiNameTemplate,
-            [
-                'name' => $this->getName(),
-                'identifier' => $this->getIdentifier(),
-                'methodname' => $this->getMethodName(),
-            ],
-        );
-    }
-
-    /**
-     * Define the proxy multi proxy name.
-     *
-     * @param string $multiName
+     * @param string $methodName
      * @return self
      */
-    public function setMultiName(string $multiName)
+    public function setMethodName(string $methodName)
     {
         $this->needsToBeUnlocked();
 
-        $this->multiName = $multiName;
+        $this->methodName = $methodName;
 
         return $this;
     }
 
     /**
-     * Return the proxy multi proxy name.
+     * Return the method name that is used for this proxy.
      *
      * @return string
      */
-    public function getMultiName(): string
+    public function getMethodName(): string
     {
-        return $this->multiName;
+        return $this->methodName;
     }
 
     /**
-     * Define the proxy identifier.
+     * Set this proxy as static or not.
      *
-     * @param string $identifier
+     * @param boolean $static
      * @return self
      */
-    public function setIdentifier(string $identifier)
+    public function setStatic(bool $static)
     {
         $this->needsToBeUnlocked();
 
-        $this->identifier = $identifier;
+        $this->static = $static;
 
         return $this;
     }
 
     /**
-     * Return the proxy identifier.
+     * Return if this proxy is static or not.
      *
-     * @return string
+     * @return boolean
      */
-    public function getIdentifier(): string
+    public function isStatic(): bool
     {
-        return $this->identifier;
+        return $this->static;
     }
 
     /**
@@ -147,6 +103,10 @@ class Proxy extends BaseProxy
      */
     protected function checkArguments(array $args)
     {
+        if ($this->isStatic() && !is_string(Arr::get($args, 0))) {
+            throw new \BadMethodCallException("The proxy `{$this->getName()}` must be called statically.");
+        }
+
         if (!$this->isStatic() && !(Arr::get($args, 0) instanceof Proxied)) {
             throw new \BadMethodCallException("The proxy `{$this->getName()}` cannot be called statically.");
         }

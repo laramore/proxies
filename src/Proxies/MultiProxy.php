@@ -10,7 +10,7 @@
 
 namespace Laramore\Proxies;
 
-class MultiProxy extends BaseProxy
+class MultiProxy extends Proxy
 {
     /**
      * List of all proxies that this multi proxy can lead.
@@ -29,12 +29,13 @@ class MultiProxy extends BaseProxy
     {
         parent::__construct($name, $name, $static);
 
-        $this->setCallback(function (string $identifierName, ...$args) {
+        // The first element is either the object on which the proxy is called or its class name, if called statically.
+        $this->setCallback(function ($objectOrClass, string $identifierName, ...$args) {
             if (!$this->hasProxy($identifierName)) {
                 throw new \BadMethodCallException("The method `{$this->getName()}` does not exist for `$identifierName`");
             }
 
-            return $this->getProxy($identifierName)->__invoke(...$args);
+            return $this->getProxy($identifierName)->__invoke($objectOrClass, ...$args);
         });
     }
 
