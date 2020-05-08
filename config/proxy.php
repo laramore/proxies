@@ -13,6 +13,8 @@ return [
 
     'manager' => \Laramore\Proxies\ProxyManager::class,
 
+    'class' => \Laramore\Proxies\Proxy::class,
+
     'multi_class' => \Laramore\Proxies\MultiProxy::class,
     
     'templates' => [
@@ -20,5 +22,7 @@ return [
         'multi_name' => '-{methodname}',
     ],
 
-    'configurations' => [],
+    'configurations' => [
+
+    ],
 ];
