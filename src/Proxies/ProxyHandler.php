@@ -63,12 +63,11 @@ class ProxyHandler extends BaseHandler implements Configured
             return $this;
         }
 
-        $name = $proxy->getMultiName();
-
-        if (\is_null($name) || $name === $proxy->getName()) {
+        if (!$proxy->allowsMulti()) {
             return $this;
         }
 
+        $name = $proxy->getMultiName();
         $class = $this->getConfig('multi_class');
 
         if ($this->has($name)) {

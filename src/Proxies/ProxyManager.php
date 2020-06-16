@@ -58,6 +58,7 @@ class ProxyManager extends BaseManager implements LaramoreManager, Configured
                 $methodName,
                 $methodName,
                 Arr::get($data, 'static', false),
+                Arr::get($data, 'allow_multi', true),
             );
 
             $proxy->setCallback(Arr::get($data, 'callback', $methodName));

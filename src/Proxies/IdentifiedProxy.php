@@ -35,10 +35,11 @@ class IdentifiedProxy extends Proxy
      * @param string  $identifier
      * @param string  $methodName
      * @param boolean $static
+     * @param boolean $allowMulti
      * @param string  $nameTemplate
      * @param string  $multiNameTemplate
      */
-    public function __construct(string $identifier, string $methodName, bool $static=false,
+    public function __construct(string $identifier, string $methodName, bool $static=false, bool $allowMulti=true,
                                 string $nameTemplate=null, string $multiNameTemplate=null)
     {
         $config = Container::getInstance()->config;
@@ -46,7 +47,7 @@ class IdentifiedProxy extends Proxy
         $this->setIdentifier($identifier);
         $this->setMethodName($methodName);
 
-        parent::__construct($this->parseName($nameTemplate ?: $config->get('proxy.templates.name')), $methodName, $static);
+        parent::__construct($this->parseName($nameTemplate ?: $config->get('proxy.templates.name')), $methodName, $static, $allowMulti);
 
         $this->setMultiName($this->parseMultiName($multiNameTemplate ?: $config->get('proxy.templates.multi_name')));
     }

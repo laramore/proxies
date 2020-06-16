@@ -36,11 +36,13 @@ class Proxy extends BaseObserver
      * @param string  $name
      * @param string  $methodName
      * @param boolean $static
+     * @param boolean $allowMulti
      */
-    public function __construct(string $name, string $methodName, bool $static=false)
+    public function __construct(string $name, string $methodName, bool $static=false, bool $allowMulti=true)
     {
         $this->setMethodName($methodName);
         $this->setStatic($static);
+        $this->allowMulti($allowMulti);
 
         parent::__construct($name, null, self::MEDIUM_PRIORITY, []);
     }
@@ -68,6 +70,31 @@ class Proxy extends BaseObserver
     public function getMethodName(): string
     {
         return $this->methodName;
+    }
+
+    /**
+     * Allow this proxy to be in a multi proxy.
+     *
+     * @param boolean $allowMulti
+     * @return self
+     */
+    public function allowMulti(bool $allowMulti)
+    {
+        $this->needsToBeUnlocked();
+
+        $this->allowMulti = $allowMulti;
+
+        return $this;
+    }
+
+    /**
+     * Indicate if this proxy allows to be in a multi proxy.
+     *
+     * @return boolean
+     */
+    public function allowsMulti(): bool
+    {
+        return $this->allowMulti;
     }
 
     /**
