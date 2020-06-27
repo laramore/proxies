@@ -24,11 +24,18 @@ class Proxy extends BaseObserver
     protected $methodName;
 
     /**
-     * Static proxy
+     * Static proxy.
      *
      * @var bool
      */
     protected $static;
+
+    /**
+     * Allow multi proxy.
+     *
+     * @var bool
+     */
+    protected $multi;
 
     /**
      * An observer needs at least a name and a Closure.

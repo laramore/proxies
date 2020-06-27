@@ -47,9 +47,12 @@ class IdentifiedProxy extends Proxy
         $this->setIdentifier($identifier);
         $this->setMethodName($methodName);
 
-        parent::__construct($this->parseName($nameTemplate ?: $config->get('proxy.templates.name')), $methodName, $static, $allowMulti);
+        $nameTemplate = $nameTemplate ?: $config->get('proxy.templates.name');
+        $multiNameTemplate = $multiNameTemplate ?: $config->get('proxy.templates.multi_name');
 
-        $this->setMultiName($this->parseMultiName($multiNameTemplate ?: $config->get('proxy.templates.multi_name')));
+        parent::__construct($this->parseName($nameTemplate), $methodName, $static, $allowMulti);
+
+        $this->setMultiName($this->parseMultiName($multiNameTemplate));
     }
 
     /**
