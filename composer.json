@@ -10,7 +10,7 @@
    },
     "require": {
         "php": ">=7.0.8",
-        "laramore/base": "~0.7"
+        "laramore/base": ">=0.8"
     },
     "authors": [
         {
