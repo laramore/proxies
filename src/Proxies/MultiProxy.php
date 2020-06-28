@@ -52,10 +52,10 @@ class MultiProxy extends Proxy
     /**
      * Add a new proxy to this.
      *
-     * @param Proxy $proxy
+     * @param IdentifiedProxy $proxy
      * @return self
      */
-    public function addProxy(Proxy $proxy)
+    public function addProxy(IdentifiedProxy $proxy)
     {
         if ($this->isStatic() && !$proxy->isStatic()) {
             throw new \LogicException('Multi proxy is statically callable, not the added proxy');

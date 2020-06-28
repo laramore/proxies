@@ -45,7 +45,7 @@ class ProxyHandler extends BaseHandler implements Configured
      */
     public function getConfig(string $path=null, $default=null)
     {
-        return Container::getInstance()->config->get($this->getConfigPath($path), $default);
+        return config($this->getConfigPath($path), $default);
     }
 
     /**

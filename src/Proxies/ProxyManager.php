@@ -38,7 +38,7 @@ class ProxyManager extends BaseManager implements LaramoreManager, Configured
     /**
      * Common proxies between all handlers.
      *
-     * @var array<BaseProxy>
+     * @var array<Proxy>
      */
     protected $commonProxies = [];
 
@@ -91,7 +91,7 @@ class ProxyManager extends BaseManager implements LaramoreManager, Configured
     /**
      * Return all common proxies.
      *
-     * @return array<BaseProxy>
+     * @return array<Proxy>
      */
     public function getCommonProxies(): array
     {
@@ -109,7 +109,7 @@ class ProxyManager extends BaseManager implements LaramoreManager, Configured
     {
         $handler = parent::createHandler($observableClass);
 
-        foreach ($this->commonProxies as $proxy) {
+        foreach ($this->getCommonProxies() as $proxy) {
             $handler->add($proxy);
         }
 

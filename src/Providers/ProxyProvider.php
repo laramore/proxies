@@ -11,7 +11,6 @@
 namespace Laramore\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Illuminate\Container\Container;
 use Laramore\Contracts\{
 	Manager\LaramoreManager, Provider\LaramoreProvider
 };
@@ -52,7 +51,7 @@ class ProxyProvider extends ServiceProvider implements LaramoreProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../../config/proxy.php' => $this->app->make('path.config').'/proxy.php',
+            __DIR__.'/../../config/proxy.php' => config_path('/proxy.php'),
         ]);
     }
 
@@ -63,7 +62,7 @@ class ProxyProvider extends ServiceProvider implements LaramoreProvider
      */
     public static function getDefaults(): array
     {
-        return Container::getInstance()->config->get('proxy.configurations');
+        return config('proxy.configurations');
     }
 
     /**
@@ -73,7 +72,7 @@ class ProxyProvider extends ServiceProvider implements LaramoreProvider
      */
     public static function generateManager(): LaramoreManager
     {
-        $class = Container::getInstance()->config->get('proxy.manager');
+        $class = config('proxy.manager');
 
         return new $class(static::getDefaults());
     }
